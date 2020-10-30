@@ -11,7 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class Products {
+public final class Products {
     private List<Product> products;
 
     /*
@@ -19,12 +19,12 @@ public class Products {
         this.services = initializeProducts();
     }
 
-    private List<Product> initializeProducts() {
+    private List<Booking> initializeProducts() {
         return new ArrayList<>();
     }
 
     public void addProduct(final Product product) {
-        this.products.add(product);
+        this.bookings.add(product);
     }
      */
 }

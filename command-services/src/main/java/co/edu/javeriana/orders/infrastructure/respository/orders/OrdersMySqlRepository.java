@@ -16,16 +16,20 @@ public final class OrdersMySqlRepository implements OrderRepository {
     public CompletableFuture<String> saveOrder(Order order) {
         try {
             String sql = "INSERT INTO ORDER (ORDER_ID, " +
+                                            "ORDER_CODE" +
                                             "CUSTOMER_ID, " +
                                             "PAYMENT_ID, " +
-                                            "STATE" +
-                                            "VALUES (?,?,?,?)";
+                                            "STATUS" +
+                                            "CREATION_DATE" +
+                                            "VALUES (?,?,?,?,?,?)";
 
             this.template.update(sql,
-                    order.getId(),
-                    order.getCustomer().getId(),
-                    order.getPayment().getId(),
-                    order.getState().getId());
+                                 order.getId(),
+                                 order.getCode(),
+                                 order.getCustomer().getId(),
+                                 order.getPayment().getId(),
+                                 order.getState().getValue(),
+                                 order.getCreationDate());
 
             return CompletableFuture.completedFuture(Status.CREATED.name());
         } catch(Exception e) {
@@ -39,12 +43,14 @@ public final class OrdersMySqlRepository implements OrderRepository {
             for (Product productRow : products.getProducts()) {
                 String sql = "INSERT INTO PRODUCTBYORDER (ORDER_ID, " +
                                                          "PRODUCT_ID" +
+                                                         "PRODUCT_CODE" +
                                                          "PRICE_PRODUCT" +
-                                                         "VALUES (?,?,?)";
+                                                         "VALUES (?,?,?,?)";
 
                 this.template.update(sql,
                                      orderId,
                                      productRow.getId(),
+                                     productRow.getCode(),
                                      productRow.getPrice());
             }
 
@@ -52,7 +58,5 @@ public final class OrdersMySqlRepository implements OrderRepository {
         } catch(Exception e) {
             return CompletableFuture.completedFuture(Status.ERROR.name());
         }
-
-        return null;
     }
 }
