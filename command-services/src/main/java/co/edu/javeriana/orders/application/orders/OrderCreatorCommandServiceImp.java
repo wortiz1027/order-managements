@@ -13,7 +13,7 @@ import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
-public final class OrderCreatorCommandServiceImp implements  OrderCreatorCommandService {
+public class OrderCreatorCommandServiceImp implements  OrderCreatorCommandService {
     @Value("${events.amqp.exchange}")
     String orderExchange;
 
@@ -29,11 +29,21 @@ public final class OrderCreatorCommandServiceImp implements  OrderCreatorCommand
     public CompletableFuture<Response> createOrder(Order order) {
         Response response = new Response();
         try {
+            //Save values for orders
             String status = this.repository.saveOrder(order).get();
             response.setStatus(status);
 
             if (!status.equalsIgnoreCase(Status.CREATED.name())) {
                 response.setDescription(String.format("The order with id: {%s} has an error", order.getId()));
+                return CompletableFuture.completedFuture(response);
+            }
+
+            //Save values for products by orders
+            status = this.repository.saveProductsByOrder(order.getId(), order.getProducts()).get();
+            response.setStatus(status);
+
+            if (!status.equalsIgnoreCase(Status.CREATED.name())) {
+                response.setDescription(String.format("The products by orders with order id: {%s} has an error", order.getId()));
                 return CompletableFuture.completedFuture(response);
             }
 

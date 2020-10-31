@@ -5,22 +5,23 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @Repository
 @RequiredArgsConstructor
-public final class OrdersMySqlRepository implements OrderRepository {
-    private JdbcTemplate template;
+public class OrdersMySqlRepository implements OrderRepository {
+    private final JdbcTemplate template;
 
     @Override
     public CompletableFuture<String> saveOrder(Order order) {
         try {
-            String sql = "INSERT INTO ORDER (ORDER_ID, " +
-                                            "ORDER_CODE" +
+            String sql = "INSERT INTO ORDERS (ORDER_ID, " +
+                                            "ORDER_CODE, " +
                                             "CUSTOMER_ID, " +
                                             "PAYMENT_ID, " +
-                                            "STATUS" +
-                                            "CREATION_DATE" +
+                                            "STATUS, " +
+                                            "CREATION_DATE) " +
                                             "VALUES (?,?,?,?,?,?)";
 
             this.template.update(sql,
@@ -33,18 +34,19 @@ public final class OrdersMySqlRepository implements OrderRepository {
 
             return CompletableFuture.completedFuture(Status.CREATED.name());
         } catch(Exception e) {
+            e.printStackTrace();e.printStackTrace();
             return CompletableFuture.completedFuture(Status.ERROR.name());
         }
     }
 
     @Override
-    public CompletableFuture<String> saveProductsByOrder(final String orderId, final Products products) {
+    public CompletableFuture<String> saveProductsByOrder(final String orderId, final List<Product> products) {
         try {
-            for (Product productRow : products.getProducts()) {
-                String sql = "INSERT INTO PRODUCTBYORDER (ORDER_ID, " +
-                                                         "PRODUCT_ID" +
-                                                         "PRODUCT_CODE" +
-                                                         "PRICE_PRODUCT" +
+            for (Product productRow : products) {
+                String sql = "INSERT INTO PRODUCTBYORDERS (ORDER_ID, " +
+                                                         "PRODUCT_ID, " +
+                                                         "PRODUCT_CODE, " +
+                                                         "PRICE_PRODUCT) " +
                                                          "VALUES (?,?,?,?)";
 
                 this.template.update(sql,
@@ -56,6 +58,7 @@ public final class OrdersMySqlRepository implements OrderRepository {
 
             return CompletableFuture.completedFuture(Status.CREATED.name());
         } catch(Exception e) {
+            e.printStackTrace();
             return CompletableFuture.completedFuture(Status.ERROR.name());
         }
     }

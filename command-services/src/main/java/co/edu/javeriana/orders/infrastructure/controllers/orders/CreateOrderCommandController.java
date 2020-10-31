@@ -19,14 +19,14 @@ import java.util.concurrent.ExecutionException;
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
 public final class CreateOrderCommandController {
-    private OrderCreatorCommandService service;
+    private final OrderCreatorCommandService service;
 
     @PostMapping("/order")
     public ResponseEntity<CompletableFuture<Response>> handle(@RequestBody Order order) throws ExecutionException, InterruptedException {
         if (order == null)
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 
-        CompletableFuture<Response> rs = this.service.createOrder(order);
+        CompletableFuture<Response> rs = service.createOrder(order);
 
         if (rs.get().getStatus().equalsIgnoreCase(Status.CREATED.name()))
             return new ResponseEntity<>(rs, HttpStatus.CREATED);

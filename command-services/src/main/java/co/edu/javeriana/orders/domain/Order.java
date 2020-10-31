@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -16,7 +17,7 @@ public final class Order {
     private String code;
     private LocalDate creationDate;
     private Customer customer;
-    private Products products;
+    private List<Product> products;
     private Payment payment;
     private State state;
     private String status;
