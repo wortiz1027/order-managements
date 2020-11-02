@@ -1,9 +1,6 @@
 package co.edu.javeriana.orders.application.orders;
 
-import co.edu.javeriana.orders.domain.Order;
-import co.edu.javeriana.orders.domain.OrderRepository;
-import co.edu.javeriana.orders.domain.Response;
-import co.edu.javeriana.orders.domain.Status;
+import co.edu.javeriana.orders.domain.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,13 +20,13 @@ public class OrderCreatorCommandServiceImp implements  OrderCreatorCommandServic
     private final OrderRepository repository;
     private final AmqpTemplate template;
 
-    private final String IN_PROGRESS = "IN PROGRESS";
-
     @Override
     public CompletableFuture<Response> createOrder(Order order) {
         Response response = new Response();
+
         try {
             //Save values for orders
+            order.setState(new State(OrderState.ABIERTA.name()));
             String status = this.repository.saveOrder(order).get();
             response.setStatus(status);
 
@@ -48,7 +45,6 @@ public class OrderCreatorCommandServiceImp implements  OrderCreatorCommandServic
             }
 
             order.setStatus(Status.CREATED.name());
-            order.getState().setValue(IN_PROGRESS);
             this.template.convertAndSend(orderExchange, orderRoutingKey, order);
             response.setDescription(String.format("The order with id: {%s} has been created", order.getId()));
 

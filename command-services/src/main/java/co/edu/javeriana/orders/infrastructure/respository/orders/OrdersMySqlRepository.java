@@ -2,10 +2,13 @@ package co.edu.javeriana.orders.infrastructure.respository.orders;
 
 import co.edu.javeriana.orders.domain.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 @Repository
@@ -60,6 +63,46 @@ public class OrdersMySqlRepository implements OrderRepository {
         } catch(Exception e) {
             e.printStackTrace();
             return CompletableFuture.completedFuture(Status.ERROR.name());
+        }
+    }
+
+    @Override
+    public CompletableFuture<String> updateStatusOrderById(final String orderId, final String status) {
+        try {
+            if (findOrderById(orderId).isEmpty()) return CompletableFuture.completedFuture(Status.NO_EXIST.name());
+
+            String sql = "UPDATE ORDERS SET STATUS = ? WHERE ORDER_ID = ?";
+
+            this.template.update(sql, status, orderId);
+
+            return CompletableFuture.completedFuture(Status.UPDATED.name());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return CompletableFuture.completedFuture(Status.ERROR.name());
+        }
+    }
+
+    @Override
+    public Optional<Order> findOrderById(String orderId) {
+        try {
+            String sql = "SELECT * FROM ORDERS WHERE ORDER_ID =?";
+            return template.queryForObject(sql,
+                    new Object[]{orderId},
+                    (rs, rowNum) ->
+                            Optional.of(new Order(
+                                    rs.getString("ORDER_ID"),
+                                    rs.getString("ORDER_CODE"),
+                                    rs.getDate("CREATION_DATE").toLocalDate(),
+                                    new Customer(rs.getString("CUSTOMER_ID")),
+                                    new ArrayList<>(),
+                                    new Payment(rs.getString("PAYMENT_ID")),
+                                    new State(rs.getString("STATUS")),
+                                    ""
+                            ))
+            );
+        } catch (EmptyResultDataAccessException e) {
+            e.printStackTrace();
+            return Optional.empty();
         }
     }
 }
