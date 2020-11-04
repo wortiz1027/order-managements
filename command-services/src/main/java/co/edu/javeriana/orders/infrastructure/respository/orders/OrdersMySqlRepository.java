@@ -83,7 +83,38 @@ public class OrdersMySqlRepository implements OrderRepository {
     }
 
     @Override
-    public Optional<Order> findOrderById(String orderId) {
+    public CompletableFuture<String> deleteAllProductsAssociateToOrder(String orderId) {
+        try {
+            if (findProductsByOrderId(orderId).isEmpty()) return CompletableFuture.completedFuture(Status.NO_EXIST.name());
+
+            String sql = "DELETE FROM PRODUCTBYORDERS WHERE ORDER_ID = ?";
+
+            this.template.update(sql, orderId);
+
+            return CompletableFuture.completedFuture(Status.DELETED.name());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return CompletableFuture.completedFuture(Status.ERROR.name());
+        }
+    }
+
+    @Override
+    public CompletableFuture<String> deleteOrderById(String orderId) {
+        try {
+            if (findOrderById(orderId).isEmpty()) return CompletableFuture.completedFuture(Status.NO_EXIST.name());
+
+            String sql = "DELETE FROM ORDERS WHERE ORDER_ID = ?";
+
+            this.template.update(sql, orderId);
+
+            return CompletableFuture.completedFuture(Status.DELETED.name());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return CompletableFuture.completedFuture(Status.ERROR.name());
+        }
+    }
+
+    private Optional<Order> findOrderById(String orderId) {
         try {
             String sql = "SELECT * FROM ORDERS WHERE ORDER_ID =?";
             return template.queryForObject(sql,
@@ -103,6 +134,20 @@ public class OrdersMySqlRepository implements OrderRepository {
         } catch (EmptyResultDataAccessException e) {
             e.printStackTrace();
             return Optional.empty();
+        }
+    }
+
+    private List<Optional<Product>> findProductsByOrderId(String orderId) {
+        try {
+            String sql = "SELECT * FROM PRODUCTBYORDERS WHERE ORDER_ID =?";
+
+            return template.query(sql, (rs, rowNum) ->
+                    Optional.of(new Product(rs.getString("PRODUCT_ID"),
+                                            rs.getString("PRODUCT_CODE"),
+                                            rs.getDouble("PRICE_PRODUCT"))), orderId);
+        } catch (EmptyResultDataAccessException e) {
+            e.printStackTrace();
+            return new ArrayList<>();
         }
     }
 }
