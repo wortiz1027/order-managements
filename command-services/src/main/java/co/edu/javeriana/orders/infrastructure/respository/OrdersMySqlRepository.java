@@ -1,4 +1,4 @@
-package co.edu.javeriana.orders.infrastructure.respository.orders;
+package co.edu.javeriana.orders.infrastructure.respository;
 
 import co.edu.javeriana.orders.domain.*;
 import lombok.RequiredArgsConstructor;

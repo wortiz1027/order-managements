@@ -1,6 +1,6 @@
-package co.edu.javeriana.orders.infrastructure.controllers.orders;
+package co.edu.javeriana.orders.infrastructure.controllers;
 
-import co.edu.javeriana.orders.application.orders.OrderDeleteService;
+import co.edu.javeriana.orders.application.OrderDeleteService;
 import co.edu.javeriana.orders.domain.Response;
 import co.edu.javeriana.orders.domain.Status;
 import lombok.RequiredArgsConstructor;

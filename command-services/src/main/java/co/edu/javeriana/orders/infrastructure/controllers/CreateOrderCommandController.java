@@ -1,6 +1,6 @@
-package co.edu.javeriana.orders.infrastructure.controllers.orders;
+package co.edu.javeriana.orders.infrastructure.controllers;
 
-import co.edu.javeriana.orders.application.orders.OrderCreatorCommandService;
+import co.edu.javeriana.orders.application.OrderCreatorCommandService;
 import co.edu.javeriana.orders.domain.Order;
 import co.edu.javeriana.orders.domain.Response;
 import co.edu.javeriana.orders.domain.Status;

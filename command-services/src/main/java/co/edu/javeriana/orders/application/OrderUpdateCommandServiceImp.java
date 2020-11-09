@@ -1,4 +1,4 @@
-package co.edu.javeriana.orders.application.orders;
+package co.edu.javeriana.orders.application;
 
 import co.edu.javeriana.orders.domain.*;
 import lombok.RequiredArgsConstructor;
