@@ -14,14 +14,105 @@
 	<name>query-services</name>
 	<description>Servicios para la consulta de las ordenes</description>
 
+	<developers>
+		<developer>
+			<id>bsuarez</id>
+			<name>Brian Camilo Suarez Botia</name>
+			<email>bsuarez@javeriana.edu.co</email>
+			<url>https://www.javeriana.edu.co/</url>
+			<organization>Pontificia Universidad Javeriana</organization>
+			<organizationUrl>https://www.javeriana.edu.co/</organizationUrl>
+			<roles>
+				<role>Desarrollador Senior</role>
+			</roles>
+			<timezone>America/Bogota</timezone>
+			<properties>
+				<picture>http://www.oorsprong.org/WebSamples.CountryInfo/Images/Colombia.jpg</picture>
+			</properties>
+		</developer>
+		<developer>
+			<id>efranco</id>
+			<name>Eduardo Franco Rivera</name>
+			<email>efranco@javeriana.edu.co</email>
+			<url>https://www.javeriana.edu.co/</url>
+			<organization>Pontificia Universidad Javeriana</organization>
+			<organizationUrl>https://www.javeriana.edu.co/</organizationUrl>
+			<roles>
+				<role>Desarrollador Senior</role>
+			</roles>
+			<timezone>America/Bogota</timezone>
+			<properties>
+				<picture>http://www.oorsprong.org/WebSamples.CountryInfo/Images/Colombia.jpg</picture>
+			</properties>
+		</developer>
+		<developer>
+			<id>jcelemin</id>
+			<name>John Edward Celemin Florez</name>
+			<email>jcelemin@javeriana.edu.co</email>
+			<url>https://www.javeriana.edu.co/</url>
+			<organization>Pontificia Universidad Javeriana</organization>
+			<organizationUrl>https://www.javeriana.edu.co/</organizationUrl>
+			<roles>
+				<role>Desarrollador Senior</role>
+			</roles>
+			<timezone>America/Bogota</timezone>
+			<properties>
+				<picture>http://www.oorsprong.org/WebSamples.CountryInfo/Images/Colombia.jpg</picture>
+			</properties>
+		</developer>
+		<developer>
+			<id>wortiz</id>
+			<name>Wilman Ortiz</name>
+			<email>wiortiz@javeriana.edu.co</email>
+			<url>https://www.javeriana.edu.co/</url>
+			<organization>Pontificia Universidad Javeriana</organization>
+			<organizationUrl>https://www.javeriana.edu.co/</organizationUrl>
+			<roles>
+				<role>Desarrollador Senior</role>
+			</roles>
+			<timezone>America/Bogota</timezone>
+			<properties>
+				<picture>http://www.oorsprong.org/WebSamples.CountryInfo/Images/Colombia.jpg</picture>
+			</properties>
+		</developer>
+	</developers>
+
 	<properties>
+		<axon.version>4.0.3</axon.version>
 		<java.version>11</java.version>
+		<spring-cloud.version>Hoxton.SR8</spring-cloud.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 	</properties>
 
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-jdbc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.data</groupId>
+			<artifactId>spring-data-commons</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-amqp</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-config</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
 		</dependency>
 
 		<dependency>
@@ -47,7 +138,28 @@
 		</dependency>
 	</dependencies>
 
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
 	<build>
+		<finalName>orders-query-service</finalName>
+
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
+
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
@@ -55,5 +167,6 @@
 			</plugin>
 		</plugins>
 	</build>
+
 
 </project>

@@ -1,0 +1,10 @@
+# +-----------------------------------------------------
+# |         PRODUCTS QUERY SERVICES
+# +-----------------------------------------------------
+spring:
+  application:
+    name: orders-query-services
+  cloud:
+    config:
+      uri:  ${CONFIG_SERVER:http://localhost:9090}  #where the config-service is running
+      fail-fast: true             #the service will not run if it can't reach the config-service
