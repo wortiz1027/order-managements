@@ -25,10 +25,10 @@ public class EventHandler {
         final Optional<Order> order = repository.findOrderById(orderData.getId());
 
         if (orderData.getStatus().equalsIgnoreCase(Status.CREATED.name()) && order.isEmpty()) {
-            //Save products list of order
-            this.repository.saveProductsByOrder(orderData.getId(), orderData.getProducts());
             //Save order data
             this.repository.saveOrder(orderData);
+            //Save products list of order
+            this.repository.saveProductsByOrder(orderData.getId(), orderData.getProducts());
             //Log message
             LOG.info("Order with id [{}] has been created", orderData.getId());
             //Exit from method

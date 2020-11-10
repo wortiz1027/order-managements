@@ -11,10 +11,10 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RpcConfiguration {
 
-    @Value("${events.rpc.exchange}")
+    @Value("${events.rpc.orders.exchange}")
     private String rpcExchange;
 
-    @Value("${events.rpc.queue}")
+    @Value("${events.rpc.orders.queue}")
     private String rpcQueue;
 
     @Bean

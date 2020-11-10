@@ -6,6 +6,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -42,7 +43,21 @@ public class OrdersMySqlRepository implements OrderRepository {
 
     @Override
     public Optional<List<Order>> getAllOpenOrder() {
-        return Optional.empty();
+        try {
+            String sql = "SELECT * FROM ORDERS WHERE STATUS =?";
+
+            return Optional.of(template.query(sql, (rs, rowNum) -> new Order(rs.getString("ORDER_ID"),
+                                                                             rs.getString("ORDER_CODE"),
+                                                                             rs.getDate("CREATION_DATE").toLocalDate(),
+                                                                             new Customer(rs.getString("CUSTOMER_ID")),
+                                                                             new ArrayList<>(),
+                                                                             new Payment(rs.getString("PAYMENT_ID")),
+                                                                             new State(rs.getString("STATUS")),
+                                                                      ""), OrderState.ABIERTA.name()));
+        } catch (EmptyResultDataAccessException e) {
+            e.printStackTrace();
+            return Optional.of(new ArrayList<>());
+        }
     }
 
     @Override
@@ -64,7 +79,6 @@ public class OrdersMySqlRepository implements OrderRepository {
     public Optional<List<Order>> getOrderByProductCode(String productId) {
         return Optional.empty();
     }
-
 
     @Override
     public CompletableFuture<String> saveOrder(Order order) {

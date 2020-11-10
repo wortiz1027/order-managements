@@ -35,6 +35,7 @@ public class OrderQueryServiceImp implements OrderQueryService {
             status.setCode(Status.SUCCESS.name());
             status.setDescription(String.format("There is information for active orders"));
             response.setStatus(status);
+            response.setOrders(orders.get());
 
             return CompletableFuture.completedFuture(response);
         } catch (Exception e) {
