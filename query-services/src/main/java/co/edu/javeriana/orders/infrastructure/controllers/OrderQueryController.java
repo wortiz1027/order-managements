@@ -34,7 +34,6 @@ public final class OrderQueryController {
         return new ResponseEntity<>(rs, HttpStatus.ACCEPTED);
     }
 
-
     @GetMapping("/order/detail/{orderId}")
     public ResponseEntity<CompletableFuture<Response>> detail(@PathVariable String orderId) throws ExecutionException, InterruptedException {
         CompletableFuture<Response> rs = service.getOrderDetail(orderId);
@@ -83,9 +82,25 @@ public final class OrderQueryController {
         return new ResponseEntity<>(rs, HttpStatus.ACCEPTED);
     }
 
-    @GetMapping("/orders/product/{productId}")
-    public ResponseEntity<CompletableFuture<Response>> getByProduct(@PathVariable String productId) throws ExecutionException, InterruptedException {
-        CompletableFuture<Response> rs = service.getOrderByProductCode(productId);
+    @GetMapping("/orders/product/{productCode}")
+    public ResponseEntity<CompletableFuture<Response>> getByProduct(@PathVariable String productCode) throws ExecutionException, InterruptedException {
+        CompletableFuture<Response> rs = service.getOrderByProductCode(productCode);
+
+        if (rs.get().getStatus().getCode().equalsIgnoreCase(Status.SUCCESS.name()))
+            return new ResponseEntity<>(rs, HttpStatus.OK);
+
+        if (rs.get().getStatus().getCode().equalsIgnoreCase(Status.EMPTY.name()))
+            return new ResponseEntity<>(rs, HttpStatus.NOT_FOUND);
+
+        if (rs.get().getStatus().getCode().equalsIgnoreCase(Status.ERROR.name()))
+            return new ResponseEntity<>(rs, HttpStatus.INTERNAL_SERVER_ERROR);
+
+        return new ResponseEntity<>(rs, HttpStatus.ACCEPTED);
+    }
+
+    @GetMapping("/orders/client/{clientId}")
+    public ResponseEntity<CompletableFuture<Response>> getByClient(@PathVariable String clientId) throws ExecutionException, InterruptedException {
+        CompletableFuture<Response> rs = service.getOrderByClient(clientId);
 
         if (rs.get().getStatus().getCode().equalsIgnoreCase(Status.SUCCESS.name()))
             return new ResponseEntity<>(rs, HttpStatus.OK);

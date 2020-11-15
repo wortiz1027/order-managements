@@ -32,7 +32,8 @@ public class OrdersMySqlRepository implements OrderRepository {
                                     new ArrayList<>(),
                                     new Payment(rs.getString("PAYMENT_ID")),
                                     new State(rs.getString("STATUS")),
-                                    ""
+                                    null,
+                                    0.0
                             ))
             );
         } catch (EmptyResultDataAccessException e) {
@@ -53,7 +54,8 @@ public class OrdersMySqlRepository implements OrderRepository {
                                                                              new ArrayList<>(),
                                                                              new Payment(rs.getString("PAYMENT_ID")),
                                                                              new State(rs.getString("STATUS")),
-                                                                      ""), OrderState.ABIERTA.name()));
+                                                                             null,
+                                                                             0.0), OrderState.ABIERTA.name()));
         } catch (EmptyResultDataAccessException e) {
             e.printStackTrace();
             return Optional.of(new ArrayList<>());
@@ -62,22 +64,98 @@ public class OrdersMySqlRepository implements OrderRepository {
 
     @Override
     public Optional<Order> getOrderDetail(String orderId) {
+        final Optional<Order> orderDetail = findOrderById(orderId);
+
+        if (orderDetail.isPresent()) {
+            final List<Product> products = findProductsByOrderId(orderId);
+            orderDetail.get().setProducts(products);
+            return orderDetail;
+        }
+
         return Optional.empty();
     }
 
     @Override
     public Optional<State> getOrderState(String orderId) {
-        return Optional.empty();
+        try {
+            String sql = "SELECT STATUS FROM ORDERS WHERE ORDER_ID =?";
+            return template.queryForObject(sql,
+                    new Object[]{orderId},
+                    (rs, rowNum) ->
+                            Optional.of(new State(rs.getString("STATUS")
+                            ))
+            );
+        } catch (EmptyResultDataAccessException e) {
+            e.printStackTrace();
+            return Optional.empty();
+        }
     }
 
     @Override
     public Optional<Order> getOrderByCode(String orderCode) {
-        return Optional.empty();
+        try {
+            String sql = "SELECT * FROM ORDERS WHERE ORDER_CODE =?";
+            return template.queryForObject(sql,
+                    new Object[]{orderCode},
+                    (rs, rowNum) ->
+                            Optional.of(new Order(
+                                    rs.getString("ORDER_ID"),
+                                    rs.getString("ORDER_CODE"),
+                                    rs.getDate("CREATION_DATE").toLocalDate(),
+                                    new Customer(rs.getString("CUSTOMER_ID")),
+                                    new ArrayList<>(),
+                                    new Payment(rs.getString("PAYMENT_ID")),
+                                    new State(rs.getString("STATUS")),
+                                    null,
+                                    0.0))
+            );
+        } catch (EmptyResultDataAccessException e) {
+            e.printStackTrace();
+            return Optional.empty();
+        }
     }
 
     @Override
-    public Optional<List<Order>> getOrderByProductCode(String productId) {
-        return Optional.empty();
+    public Optional<List<Order>> getOrderByProductCode(String productCode) {
+        try {
+            String sql = "SELECT ORDS.* " +
+                         "FROM ORDERS ORDS " +
+                         "INNER JOIN PRODUCTBYORDERS PROBYORD ON PROBYORD.ORDER_ID = ORDS.ORDER_ID " +
+                         "WHERE PROBYORD.PRODUCT_CODE =?";
+
+            return Optional.of(template.query(sql, (rs, rowNum) -> new Order(rs.getString("ORDER_ID"),
+                                                                             rs.getString("ORDER_CODE"),
+                                                                             rs.getDate("CREATION_DATE").toLocalDate(),
+                                                                             new Customer(rs.getString("CUSTOMER_ID")),
+                                                                             new ArrayList<>(),
+                                                                             new Payment(rs.getString("PAYMENT_ID")),
+                                                                             new State(rs.getString("STATUS")),
+                                                                             null,
+                                                                             0.0), productCode));
+        } catch (EmptyResultDataAccessException e) {
+            e.printStackTrace();
+            return Optional.of(new ArrayList<>());
+        }
+    }
+
+    @Override
+    public Optional<List<Order>> getOrderByClient(String clientId) {
+        try {
+            String sql = "SELECT * FROM ORDERS WHERE CUSTOMER_ID =?";
+
+            return Optional.of(template.query(sql, (rs, rowNum) -> new Order(rs.getString("ORDER_ID"),
+                                                                             rs.getString("ORDER_CODE"),
+                                                                             rs.getDate("CREATION_DATE").toLocalDate(),
+                                                                             new Customer(rs.getString("CUSTOMER_ID")),
+                                                                             new ArrayList<>(),
+                                                                             new Payment(rs.getString("PAYMENT_ID")),
+                                                                             new State(rs.getString("STATUS")),
+                                                                             null,
+                                                                             0.0), clientId));
+        } catch (EmptyResultDataAccessException e) {
+            e.printStackTrace();
+            return Optional.of(new ArrayList<>());
+        }
     }
 
     @Override
@@ -178,14 +256,13 @@ public class OrdersMySqlRepository implements OrderRepository {
         }
     }
 
-    private List<Optional<Product>> findProductsByOrderId(String orderId) {
+    private List<Product> findProductsByOrderId(String orderId) {
         try {
             String sql = "SELECT * FROM PRODUCTBYORDERS WHERE ORDER_ID =?";
 
-            return template.query(sql, (rs, rowNum) ->
-                    Optional.of(new Product(rs.getString("PRODUCT_ID"),
-                                            rs.getString("PRODUCT_CODE"),
-                                            rs.getDouble("PRICE_PRODUCT"))), orderId);
+            return template.query(sql, (rs, rowNum) -> new Product(rs.getString("PRODUCT_ID"),
+                                                                   rs.getString("PRODUCT_CODE"),
+                                                                   rs.getDouble("PRICE_PRODUCT")), orderId);
         } catch (EmptyResultDataAccessException e) {
             e.printStackTrace();
             return new ArrayList<>();

@@ -65,6 +65,8 @@ public class OrderQueryServiceImp implements OrderQueryService {
             status.setCode(Status.SUCCESS.name());
             status.setDescription(String.format("There is information for order with id: %s", orderId));
             response.setStatus(status);
+            order.get().totalToPay();
+            response.setOrder(order.get());
 
             return CompletableFuture.completedFuture(response);
         } catch (Exception e) {
@@ -94,6 +96,7 @@ public class OrderQueryServiceImp implements OrderQueryService {
             status.setCode(Status.SUCCESS.name());
             status.setDescription(String.format("There is informations for state order with id: %s", orderId));
             response.setStatus(status);
+            response.setState(state.get());
 
             return CompletableFuture.completedFuture(response);
         } catch (Exception e) {
@@ -123,6 +126,7 @@ public class OrderQueryServiceImp implements OrderQueryService {
             status.setCode(Status.SUCCESS.name());
             status.setDescription(String.format("There is informations for order with code: %s", orderCode));
             response.setStatus(status);
+            response.setOrder(order.get());
 
             return CompletableFuture.completedFuture(response);
         } catch (Exception e) {
@@ -135,23 +139,54 @@ public class OrderQueryServiceImp implements OrderQueryService {
     }
 
     @Override
-    public CompletableFuture<Response> getOrderByProductCode(String productId) {
+    public CompletableFuture<Response> getOrderByProductCode(String productCode) {
         Response response = new Response();
         co.edu.javeriana.orders.application.dto.Status status = new co.edu.javeriana.orders.application.dto.Status();
 
         try {
-            Optional<List<Order>> order = this.repository.getOrderByProductCode(productId);
+            Optional<List<Order>> orders = this.repository.getOrderByProductCode(productCode);
 
-            if (!order.isPresent()) {
+            if (!orders.isPresent()) {
                 status.setCode(Status.EMPTY.name());
-                status.setDescription(String.format("There is not information for orders with product id: %s associated", productId));
+                status.setDescription(String.format("There is not information for orders with product code: %s associated", productCode));
                 response.setStatus(status);
                 return CompletableFuture.completedFuture(response);
             }
 
             status.setCode(Status.SUCCESS.name());
-            status.setDescription(String.format("There is informations for order wit product id: %s associated", productId));
+            status.setDescription(String.format("There is informations for order wit product code: %s associated", productCode));
             response.setStatus(status);
+            response.setOrders(orders.get());
+
+            return CompletableFuture.completedFuture(response);
+        } catch (Exception e) {
+            status.setCode(Status.ERROR.name());
+            status.setDescription(String.format("Error getting rows: %s", e.getMessage()));
+            response.setStatus(status);
+
+            return CompletableFuture.completedFuture(response);
+        }
+    }
+
+    @Override
+    public CompletableFuture<Response> getOrderByClient(String clientId) {
+        Response response = new Response();
+        co.edu.javeriana.orders.application.dto.Status status = new co.edu.javeriana.orders.application.dto.Status();
+
+        try {
+            Optional<List<Order>> orders = this.repository.getOrderByClient(clientId);
+
+            if (orders.isEmpty()) {
+                status.setCode(Status.EMPTY.name());
+                status.setDescription(String.format("There is not information for orders with client id:  %s associated", clientId));
+                response.setStatus(status);
+                return CompletableFuture.completedFuture(response);
+            }
+
+            status.setCode(Status.SUCCESS.name());
+            status.setDescription(String.format("There is informations for order wit client id: %s associated", clientId));
+            response.setStatus(status);
+            response.setOrders(orders.get());
 
             return CompletableFuture.completedFuture(response);
         } catch (Exception e) {

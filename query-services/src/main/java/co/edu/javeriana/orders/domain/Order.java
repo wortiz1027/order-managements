@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Data
 @Builder
@@ -23,4 +24,9 @@ public final class Order {
     private Payment payment;
     private State state;
     private String status;
+    private double total;
+
+    public void totalToPay() {
+        products.forEach((final Product product) -> {this.total = this.total + product.getPrice();});
+    }
 }

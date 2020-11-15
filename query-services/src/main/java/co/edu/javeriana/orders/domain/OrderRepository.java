@@ -11,7 +11,8 @@ public interface OrderRepository {
     Optional<Order> getOrderDetail(final String orderId);
     Optional<State> getOrderState(final String orderId);
     Optional<Order> getOrderByCode(final String orderCode);
-    Optional<List<Order>> getOrderByProductCode(final String productId);
+    Optional<List<Order>> getOrderByProductCode(final String productCode);
+    Optional<List<Order>> getOrderByClient(final String clientId);
 
     CompletableFuture<String> saveOrder(final Order order);
     CompletableFuture<String> saveProductsByOrder(final String orderId, final List<Product> products);

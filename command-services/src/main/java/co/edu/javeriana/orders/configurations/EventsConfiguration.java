@@ -75,16 +75,14 @@ public class EventsConfiguration {
         return BindingBuilder.bind(queue).to(exchange).with(orderRoutingKey);
     }
 
-    /*
     @Bean
     MessageListenerContainer messageListenerContainer(ConnectionFactory connectionFactory) {
         SimpleMessageListenerContainer simpleMessageListenerContainer = new SimpleMessageListenerContainer();
         simpleMessageListenerContainer.setConnectionFactory(connectionFactory);
         simpleMessageListenerContainer.setQueues(queue());
-        simpleMessageListenerContainer.setMessageListener(new RabbitMQListener());
+        //simpleMessageListenerContainer.setMessageListener(new RabbitMQListener());
         return simpleMessageListenerContainer;
     }
-     */
 
     @Bean
     @Primary
