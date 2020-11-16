@@ -6,9 +6,13 @@ import co.edu.javeriana.orders.domain.OrderRepository;
 import co.edu.javeriana.orders.domain.State;
 import co.edu.javeriana.orders.domain.Status;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
@@ -18,12 +22,12 @@ public class OrderQueryServiceImp implements OrderQueryService {
     private final OrderRepository repository;
 
     @Override
-    public CompletableFuture<Response> getAllOpenOrder() {
+    public CompletableFuture<Response> getAllOpenOrder(Pageable paging) {
         Response response = new Response();
         co.edu.javeriana.orders.application.dto.Status status = new co.edu.javeriana.orders.application.dto.Status();
 
         try {
-            Optional<List<Order>> orders = this.repository.getAllOpenOrder();
+            Optional<Page<Order>> orders = this.repository.getAllOpenOrder(paging);
 
             if (orders.isEmpty()) {
                 status.setCode(Status.EMPTY.name());
@@ -32,10 +36,18 @@ public class OrderQueryServiceImp implements OrderQueryService {
                 return CompletableFuture.completedFuture(response);
             }
 
+            List<Order> orderTemp = orders.get().getContent();
+
+            Map<String, Object> data = new HashMap<>();
+            data.put("orders", orderTemp);
+            data.put("currentPage", orders.get().getNumber());
+            data.put("totalItems", orders.get().getTotalElements());
+            data.put("totalPages", orders.get().getTotalPages());
+
             status.setCode(Status.SUCCESS.name());
             status.setDescription(String.format("There is information for active orders"));
             response.setStatus(status);
-            response.setOrders(orders.get());
+            response.setData(data);
 
             return CompletableFuture.completedFuture(response);
         } catch (Exception e) {
@@ -139,12 +151,12 @@ public class OrderQueryServiceImp implements OrderQueryService {
     }
 
     @Override
-    public CompletableFuture<Response> getOrderByProductCode(String productCode) {
+    public CompletableFuture<Response> getOrderByProductCode(Pageable paging, String productCode) {
         Response response = new Response();
         co.edu.javeriana.orders.application.dto.Status status = new co.edu.javeriana.orders.application.dto.Status();
 
         try {
-            Optional<List<Order>> orders = this.repository.getOrderByProductCode(productCode);
+            Optional<Page<Order>> orders = this.repository.getOrderByProductCode(paging, productCode);
 
             if (!orders.isPresent()) {
                 status.setCode(Status.EMPTY.name());
@@ -153,10 +165,18 @@ public class OrderQueryServiceImp implements OrderQueryService {
                 return CompletableFuture.completedFuture(response);
             }
 
+            List<Order> orderTemp = orders.get().getContent();
+
+            Map<String, Object> data = new HashMap<>();
+            data.put("orders", orderTemp);
+            data.put("currentPage", orders.get().getNumber());
+            data.put("totalItems", orders.get().getTotalElements());
+            data.put("totalPages", orders.get().getTotalPages());
+
             status.setCode(Status.SUCCESS.name());
             status.setDescription(String.format("There is informations for order wit product code: %s associated", productCode));
             response.setStatus(status);
-            response.setOrders(orders.get());
+            response.setData(data);
 
             return CompletableFuture.completedFuture(response);
         } catch (Exception e) {
@@ -169,12 +189,12 @@ public class OrderQueryServiceImp implements OrderQueryService {
     }
 
     @Override
-    public CompletableFuture<Response> getOrderByClient(String clientId) {
+    public CompletableFuture<Response> getOrderByClient(Pageable paging, String clientId) {
         Response response = new Response();
         co.edu.javeriana.orders.application.dto.Status status = new co.edu.javeriana.orders.application.dto.Status();
 
         try {
-            Optional<List<Order>> orders = this.repository.getOrderByClient(clientId);
+            Optional<Page<Order>> orders = this.repository.getOrderByClient(paging, clientId);
 
             if (orders.isEmpty()) {
                 status.setCode(Status.EMPTY.name());
@@ -183,10 +203,18 @@ public class OrderQueryServiceImp implements OrderQueryService {
                 return CompletableFuture.completedFuture(response);
             }
 
+            List<Order> orderTemp = orders.get().getContent();
+
+            Map<String, Object> data = new HashMap<>();
+            data.put("orders", orderTemp);
+            data.put("currentPage", orders.get().getNumber());
+            data.put("totalItems", orders.get().getTotalElements());
+            data.put("totalPages", orders.get().getTotalPages());
+
             status.setCode(Status.SUCCESS.name());
             status.setDescription(String.format("There is informations for order wit client id: %s associated", clientId));
             response.setStatus(status);
-            response.setOrders(orders.get());
+            response.setData(data);
 
             return CompletableFuture.completedFuture(response);
         } catch (Exception e) {

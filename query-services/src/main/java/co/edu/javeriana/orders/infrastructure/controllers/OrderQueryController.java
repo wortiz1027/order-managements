@@ -4,6 +4,8 @@ import co.edu.javeriana.orders.application.OrderQueryService;
 import co.edu.javeriana.orders.application.dto.Response;
 import co.edu.javeriana.orders.domain.Status;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +22,9 @@ public final class OrderQueryController {
     @GetMapping("/orders/open")
     public ResponseEntity<CompletableFuture<Response>> allOpen(@RequestParam(defaultValue = "0") int page,
                                                                @RequestParam(defaultValue = "5") int size) throws ExecutionException, InterruptedException {
-        CompletableFuture<Response> rs = service.getAllOpenOrder();
+        Pageable paging = PageRequest.of(page, size);
+
+        CompletableFuture<Response> rs = service.getAllOpenOrder(paging);
 
         if (rs.get().getStatus().getCode().equalsIgnoreCase(Status.SUCCESS.name()))
             return new ResponseEntity<>(rs, HttpStatus.OK);
@@ -83,8 +87,12 @@ public final class OrderQueryController {
     }
 
     @GetMapping("/orders/product/{productCode}")
-    public ResponseEntity<CompletableFuture<Response>> getByProduct(@PathVariable String productCode) throws ExecutionException, InterruptedException {
-        CompletableFuture<Response> rs = service.getOrderByProductCode(productCode);
+    public ResponseEntity<CompletableFuture<Response>> getByProduct(@PathVariable String productCode,
+                                                                    @RequestParam(defaultValue = "0") int page,
+                                                                    @RequestParam(defaultValue = "5") int size) throws ExecutionException, InterruptedException {
+        Pageable paging = PageRequest.of(page, size);
+
+        CompletableFuture<Response> rs = service.getOrderByProductCode(paging, productCode);
 
         if (rs.get().getStatus().getCode().equalsIgnoreCase(Status.SUCCESS.name()))
             return new ResponseEntity<>(rs, HttpStatus.OK);
@@ -99,8 +107,12 @@ public final class OrderQueryController {
     }
 
     @GetMapping("/orders/client/{clientId}")
-    public ResponseEntity<CompletableFuture<Response>> getByClient(@PathVariable String clientId) throws ExecutionException, InterruptedException {
-        CompletableFuture<Response> rs = service.getOrderByClient(clientId);
+    public ResponseEntity<CompletableFuture<Response>> getByClient(@PathVariable String clientId,
+                                                                   @RequestParam(defaultValue = "0") int page,
+                                                                   @RequestParam(defaultValue = "5") int size) throws ExecutionException, InterruptedException {
+        Pageable paging = PageRequest.of(page, size);
+
+        CompletableFuture<Response> rs = service.getOrderByClient(paging, clientId);
 
         if (rs.get().getStatus().getCode().equalsIgnoreCase(Status.SUCCESS.name()))
             return new ResponseEntity<>(rs, HttpStatus.OK);

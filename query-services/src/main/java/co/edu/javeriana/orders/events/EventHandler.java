@@ -35,7 +35,7 @@ public class EventHandler {
             return;
         }
 
-        if (orderData.getStatus().equalsIgnoreCase(Status.UPDATED.name()) && !order.isPresent()) {
+        if (orderData.getStatus().equalsIgnoreCase(Status.UPDATED.name()) && !order.isEmpty()) {
             //Updating state of order, this state could be CANCELADO or other
             this.repository.updateStatusOrderById(orderData.getId(), orderData.getState().getValue());
             //Log message
@@ -44,7 +44,7 @@ public class EventHandler {
             return;
         }
 
-        if (orderData.getStatus().equalsIgnoreCase(Status.DELETED.name()) && !order.isPresent()) {
+        if (orderData.getStatus().equalsIgnoreCase(Status.DELETED.name()) && !order.isEmpty()) {
             // First, deleted all associated products
             this.repository.deleteAllProductsAssociateToOrder(orderData.getId());
             // Next, deleted the order

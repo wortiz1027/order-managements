@@ -1,12 +1,15 @@
 package co.edu.javeriana.orders.infrastructure.respository;
 
 import co.edu.javeriana.orders.domain.*;
+import co.edu.javeriana.orders.infrastructure.respository.mappers.OrderRowMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -14,7 +17,7 @@ import java.util.concurrent.CompletableFuture;
 
 @Repository
 @RequiredArgsConstructor
-public class OrdersMySqlRepository implements OrderRepository {
+public class OrdersMySqlRepository implements OrderRepository<Order> {
     private final JdbcTemplate template;
 
     @Override
@@ -43,23 +46,11 @@ public class OrdersMySqlRepository implements OrderRepository {
     }
 
     @Override
-    public Optional<List<Order>> getAllOpenOrder() {
-        try {
-            String sql = "SELECT * FROM ORDERS WHERE STATUS =?";
+    public Optional<Page<Order>> getAllOpenOrder(Pageable paging) {
+        String sql = "SELECT * FROM ORDERS WHERE STATUS =? LIMIT %d OFFSET %d";
 
-            return Optional.of(template.query(sql, (rs, rowNum) -> new Order(rs.getString("ORDER_ID"),
-                                                                             rs.getString("ORDER_CODE"),
-                                                                             rs.getDate("CREATION_DATE").toLocalDate(),
-                                                                             new Customer(rs.getString("CUSTOMER_ID")),
-                                                                             new ArrayList<>(),
-                                                                             new Payment(rs.getString("PAYMENT_ID")),
-                                                                             new State(rs.getString("STATUS")),
-                                                                             null,
-                                                                             0.0), OrderState.ABIERTA.name()));
-        } catch (EmptyResultDataAccessException e) {
-            e.printStackTrace();
-            return Optional.of(new ArrayList<>());
-        }
+        List<Order> orders = this.template.query(String.format(sql, paging.getPageSize(), paging.getOffset()), new Object[] { OrderState.ABIERTA.name() }, new OrderRowMapper());
+        return Optional.of(new PageImpl<>(orders, paging, countOrders()));
     }
 
     @Override
@@ -116,46 +107,23 @@ public class OrdersMySqlRepository implements OrderRepository {
     }
 
     @Override
-    public Optional<List<Order>> getOrderByProductCode(String productCode) {
-        try {
-            String sql = "SELECT ORDS.* " +
-                         "FROM ORDERS ORDS " +
-                         "INNER JOIN PRODUCTBYORDERS PROBYORD ON PROBYORD.ORDER_ID = ORDS.ORDER_ID " +
-                         "WHERE PROBYORD.PRODUCT_CODE =?";
+    public Optional<Page<Order>> getOrderByProductCode(Pageable paging, String productCode) {
+        String sql = "SELECT ORDS.* " +
+                     "FROM ORDERS ORDS " +
+                     "INNER JOIN PRODUCTBYORDERS PROBYORD ON PROBYORD.ORDER_ID = ORDS.ORDER_ID " +
+                     "WHERE PROBYORD.PRODUCT_CODE =? " +
+                     "LIMIT %d OFFSET %d";
 
-            return Optional.of(template.query(sql, (rs, rowNum) -> new Order(rs.getString("ORDER_ID"),
-                                                                             rs.getString("ORDER_CODE"),
-                                                                             rs.getDate("CREATION_DATE").toLocalDate(),
-                                                                             new Customer(rs.getString("CUSTOMER_ID")),
-                                                                             new ArrayList<>(),
-                                                                             new Payment(rs.getString("PAYMENT_ID")),
-                                                                             new State(rs.getString("STATUS")),
-                                                                             null,
-                                                                             0.0), productCode));
-        } catch (EmptyResultDataAccessException e) {
-            e.printStackTrace();
-            return Optional.of(new ArrayList<>());
-        }
+        List<Order> orders = this.template.query(String.format(sql, paging.getPageSize(), paging.getOffset()), new Object[] { productCode }, new OrderRowMapper());
+        return Optional.of(new PageImpl<>(orders, paging, countOrdersByProduct(productCode)));
     }
 
     @Override
-    public Optional<List<Order>> getOrderByClient(String clientId) {
-        try {
-            String sql = "SELECT * FROM ORDERS WHERE CUSTOMER_ID =?";
+    public Optional<Page<Order>> getOrderByClient(Pageable paging, String clientId) {
+        String sql = "SELECT * FROM ORDERS WHERE CUSTOMER_ID =? LIMIT %d OFFSET %d";
 
-            return Optional.of(template.query(sql, (rs, rowNum) -> new Order(rs.getString("ORDER_ID"),
-                                                                             rs.getString("ORDER_CODE"),
-                                                                             rs.getDate("CREATION_DATE").toLocalDate(),
-                                                                             new Customer(rs.getString("CUSTOMER_ID")),
-                                                                             new ArrayList<>(),
-                                                                             new Payment(rs.getString("PAYMENT_ID")),
-                                                                             new State(rs.getString("STATUS")),
-                                                                             null,
-                                                                             0.0), clientId));
-        } catch (EmptyResultDataAccessException e) {
-            e.printStackTrace();
-            return Optional.of(new ArrayList<>());
-        }
+        List<Order> orders = this.template.query(String.format(sql, paging.getPageSize(), paging.getOffset()), new Object[] { clientId }, new OrderRowMapper());
+        return Optional.of(new PageImpl<>(orders, paging, countOrdersByClient(clientId)));
     }
 
     @Override
@@ -267,5 +235,23 @@ public class OrdersMySqlRepository implements OrderRepository {
             e.printStackTrace();
             return new ArrayList<>();
         }
+    }
+
+    private int countOrders() {
+        return this.template.queryForObject("SELECT count(*) FROM ORDERS", Integer.class);
+    }
+
+    private int countOrdersByProduct(final String productCode) {
+        String sql = "SELECT count(*) " +
+                     "FROM ORDERS ORDS " +
+                     "INNER JOIN PRODUCTBYORDERS PROBYORD ON PROBYORD.ORDER_ID = ORDS.ORDER_ID " +
+                     "WHERE PROBYORD.PRODUCT_CODE =? ";
+
+        return this.template.queryForObject(sql, new Object[] { productCode }, Integer.class);
+    }
+
+    private int countOrdersByClient(final String clientId) {
+        String sql = "SELECT count(*) FROM ORDERS WHERE CUSTOMER_ID =?";
+        return this.template.queryForObject(sql, new Object[] { clientId }, Integer.class);
     }
 }
