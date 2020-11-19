@@ -4,6 +4,7 @@ import co.edu.javeriana.orders.application.OrderUpdateCommandService;
 import co.edu.javeriana.orders.domain.Response;
 import co.edu.javeriana.orders.domain.State;
 import co.edu.javeriana.orders.domain.Status;
+import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,11 +16,19 @@ import java.util.concurrent.ExecutionException;
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
+@Api(value="Command para actualización de una Orden de pedido")
 public class UpdateOrderCommandController {
     private final OrderUpdateCommandService service;
 
     @PutMapping("/order/{orderId}")
-    public ResponseEntity<CompletableFuture<Response>> cancel(@PathVariable String orderId) throws ExecutionException, InterruptedException {
+    @ApiOperation(value = "Sirve para actualizar el estado de la orden, este tomará el valor de CANCELADO", response = Response.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "La orden fue actualizada satisfactoriamente"),
+            @ApiResponse(code = 404, message = "Error no se encontro informacion de la orden"),
+            @ApiResponse(code = 500, message = "Error interno en el servidor, contacte y reporte con el administrador")
+    })
+    public ResponseEntity<CompletableFuture<Response>> cancel(@ApiParam("Identificador único de la orden. No puede ser vacio.")
+                                                              @PathVariable String orderId) throws ExecutionException, InterruptedException {
         if (orderId == null)
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 
@@ -35,7 +44,16 @@ public class UpdateOrderCommandController {
     }
 
     @PutMapping("/order/state/{orderId}")
-    public ResponseEntity<CompletableFuture<Response>> changeState(@PathVariable String orderId, @RequestBody State state) throws ExecutionException, InterruptedException {
+    @ApiOperation(value = "Sirve para actualizar el estado de la orden, este tomará el valor de CANCELADO", response = Response.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "La estado de la orden fue actualizada satisfactoriamente"),
+            @ApiResponse(code = 404, message = "Error no se encontro informacion de la orden"),
+            @ApiResponse(code = 500, message = "Error interno en el servidor, contacte y reporte con el administrador")
+    })
+    public ResponseEntity<CompletableFuture<Response>> changeState(@ApiParam("Identificador único de la orden. No puede ser vacio.")
+                                                                   @PathVariable String orderId,
+                                                                   @ApiParam("Nuevo estado que puede tomar la orden. No puede ser vacio")
+                                                                   @RequestBody State state) throws ExecutionException, InterruptedException {
         if (orderId == null)
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 

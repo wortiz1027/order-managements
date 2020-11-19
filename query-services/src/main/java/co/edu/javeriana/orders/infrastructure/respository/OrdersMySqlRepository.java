@@ -157,16 +157,18 @@ public class OrdersMySqlRepository implements OrderRepository<Order> {
         try {
             for (Product productRow : products) {
                 String sql = "INSERT INTO PRODUCTBYORDERS (ORDER_ID, " +
-                                                         "PRODUCT_ID, " +
-                                                         "PRODUCT_CODE, " +
-                                                         "PRICE_PRODUCT) " +
-                                                         "VALUES (?,?,?,?)";
+                                                          "PRODUCT_ID, " +
+                                                          "PRODUCT_CODE, " +
+                                                          "PRICE_PRODUCT," +
+                                                          "QUANTITY) " +
+                                                          "VALUES (?,?,?,?,?)";
 
                 this.template.update(sql,
                                      orderId,
                                      productRow.getId(),
                                      productRow.getCode(),
-                                     productRow.getPrice());
+                                     productRow.getPrice(),
+                                     productRow.getQuantity());
             }
 
             return CompletableFuture.completedFuture(Status.CREATED.name());
@@ -230,7 +232,8 @@ public class OrdersMySqlRepository implements OrderRepository<Order> {
 
             return template.query(sql, (rs, rowNum) -> new Product(rs.getString("PRODUCT_ID"),
                                                                    rs.getString("PRODUCT_CODE"),
-                                                                   rs.getDouble("PRICE_PRODUCT")), orderId);
+                                                                   rs.getDouble("PRICE_PRODUCT"),
+                                                                   rs.getInt("QUANTITY")), orderId);
         } catch (EmptyResultDataAccessException e) {
             e.printStackTrace();
             return new ArrayList<>();
