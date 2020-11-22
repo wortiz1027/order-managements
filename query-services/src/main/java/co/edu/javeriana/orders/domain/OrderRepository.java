@@ -16,6 +16,7 @@ public interface OrderRepository<T> {
     Optional<T> getOrderByCode(final String orderCode);
     Optional<Page<T>> getOrderByProductCode(final Pageable paging, final String productCode);
     Optional<Page<T>> getOrderByClient(final Pageable paging, final String clientId);
+    Optional<List<Product>> findProductsByOrderId(String orderId);
 
     CompletableFuture<String> saveOrder(final Order order);
     CompletableFuture<String> saveProductsByOrder(final String orderId, final List<Product> products);
