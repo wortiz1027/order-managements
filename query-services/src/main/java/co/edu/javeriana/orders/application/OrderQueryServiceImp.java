@@ -1,10 +1,7 @@
 package co.edu.javeriana.orders.application;
 
 import co.edu.javeriana.orders.application.dto.Response;
-import co.edu.javeriana.orders.domain.Order;
-import co.edu.javeriana.orders.domain.OrderRepository;
-import co.edu.javeriana.orders.domain.State;
-import co.edu.javeriana.orders.domain.Status;
+import co.edu.javeriana.orders.domain.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -36,7 +33,10 @@ public class OrderQueryServiceImp implements OrderQueryService {
                 return CompletableFuture.completedFuture(response);
             }
 
-            List<Order> orderTemp = orders.get().getContent();
+            List<Order> orderTemp = orders.get().getContent();//Operaciones de carga de producto
+            orderTemp = includeProductToOrders(orderTemp);
+            //Se obtiene el valor total a pagar basado en sus productos
+            executeTotalToPay(orderTemp);
 
             Map<String, Object> data = new HashMap<>();
             data.put("orders", orderTemp);
@@ -166,6 +166,10 @@ public class OrderQueryServiceImp implements OrderQueryService {
             }
 
             List<Order> orderTemp = orders.get().getContent();
+            //Operaciones de carga de producto
+            orderTemp = includeProductToOrders(orderTemp);
+            //Se obtiene el valor total a pagar basado en sus productos
+            executeTotalToPay(orderTemp);
 
             Map<String, Object> data = new HashMap<>();
             data.put("orders", orderTemp);
@@ -204,6 +208,10 @@ public class OrderQueryServiceImp implements OrderQueryService {
             }
 
             List<Order> orderTemp = orders.get().getContent();
+            //Operaciones de carga de producto
+            orderTemp = includeProductToOrders(orderTemp);
+            //Se obtiene el valor total a pagar basado en sus productos
+            executeTotalToPay(orderTemp);
 
             Map<String, Object> data = new HashMap<>();
             data.put("orders", orderTemp);
@@ -224,5 +232,18 @@ public class OrderQueryServiceImp implements OrderQueryService {
 
             return CompletableFuture.completedFuture(response);
         }
+    }
+
+    private List<Order> includeProductToOrders(final List<Order> orders) {
+        orders.forEach((final Order order) -> {
+                                                final List<Product> products = (List<Product>) this.repository.findProductsByOrderId(order.getId()).get();
+                                                order.setProducts(products);
+                                              });
+        return orders;
+
+    }
+
+    private void executeTotalToPay(final List<Order> orders) {
+        orders.forEach((final Order order) -> { order.totalToPay(); });
     }
 }

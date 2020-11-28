@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.validation.beanvalidation.OptionalValidatorFactoryBean;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,7 +59,7 @@ public class OrdersMySqlRepository implements OrderRepository<Order> {
         final Optional<Order> orderDetail = findOrderById(orderId);
 
         if (orderDetail.isPresent()) {
-            final List<Product> products = findProductsByOrderId(orderId);
+            final List<Product> products = findProductsByOrderId(orderId).get();
             orderDetail.get().setProducts(products);
             return orderDetail;
         }
@@ -211,6 +212,21 @@ public class OrdersMySqlRepository implements OrderRepository<Order> {
     }
 
     @Override
+    public Optional<List<Product>> findProductsByOrderId(String orderId) {
+        try {
+            String sql = "SELECT * FROM PRODUCTBYORDERS WHERE ORDER_ID =?";
+
+            return Optional.of(template.query(sql, (rs, rowNum) -> new Product(rs.getString("PRODUCT_ID"),
+                    rs.getString("PRODUCT_CODE"),
+                    rs.getDouble("PRICE_PRODUCT"),
+                    rs.getInt("QUANTITY")), orderId));
+        } catch (EmptyResultDataAccessException e) {
+            e.printStackTrace();
+            return Optional.of(new ArrayList<>());
+        }
+    }
+
+    @Override
     public CompletableFuture<String> deleteOrderById(String orderId) {
         try {
             if (findOrderById(orderId).isEmpty()) return CompletableFuture.completedFuture(Status.NO_EXIST.name());
@@ -223,20 +239,6 @@ public class OrdersMySqlRepository implements OrderRepository<Order> {
         } catch (Exception e) {
             e.printStackTrace();
             return CompletableFuture.completedFuture(Status.ERROR.name());
-        }
-    }
-
-    private List<Product> findProductsByOrderId(String orderId) {
-        try {
-            String sql = "SELECT * FROM PRODUCTBYORDERS WHERE ORDER_ID =?";
-
-            return template.query(sql, (rs, rowNum) -> new Product(rs.getString("PRODUCT_ID"),
-                                                                   rs.getString("PRODUCT_CODE"),
-                                                                   rs.getDouble("PRICE_PRODUCT"),
-                                                                   rs.getInt("QUANTITY")), orderId);
-        } catch (EmptyResultDataAccessException e) {
-            e.printStackTrace();
-            return new ArrayList<>();
         }
     }
 
