@@ -1,0 +1,31 @@
+# -----------------------------------------------------------------------------
+# - DOCKERFILE
+# - AUTOR: Brian Suarez | Eduardo Franco | Jhon Celemin | Wilman Ortiz
+# - FECHA: 06-Octubre-2020
+# - DESCRIPCION: Docker-compose que permite la creacion del
+# -              contenedor con el servicio de comandos y queries de campanias
+# ------------------------------------------------------------------------------
+
+version: '3.7'
+services:
+  orders-command-services:
+    image: wortiz1027/orders-command-services:latest
+    container_name: orders-command-services
+    hostname: orders-command-services
+    restart: always
+    ports:
+      - 8089:8089
+    networks:
+      - ntw_backend
+  orders-query-services:
+    image: wortiz1027/orders-query-services:latest
+    container_name: orders-query-services
+    hostname: orders-query-services
+    restart: always
+    ports:
+      - 8090:8090
+    networks:
+      - ntw_backend
+networks:
+  ntw_backend:
+    external: true
