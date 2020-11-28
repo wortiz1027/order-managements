@@ -4,5 +4,7 @@ public enum OrderState {
     ABIERTA,
     CERRADA,
     CANCELADA,
+    APROBADA,
+    NOAPROBADA,
     ELIMINADO
 }
