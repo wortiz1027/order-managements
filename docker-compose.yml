@@ -15,6 +15,13 @@ services:
     restart: always
     ports:
       - 8089:8089
+      - 6089:6089
+    environment:    
+      - CONFIG_SERVER=http://10.39.1.85:9090
+      - EUREKA_SERVER=http://10.39.1.85:9091/eureka
+      - EUREKA_HOST=10.39.1.85
+      - RABBITMQ_HOST=10.39.1.85
+      - DB_ORDER_COMMAND_HOST=10.39.1.130      
     networks:
       - ntw_backend
   orders-query-services:
@@ -24,6 +31,13 @@ services:
     restart: always
     ports:
       - 8090:8090
+      - 6090:6090
+    environment:    
+      - CONFIG_SERVER=http://10.39.1.85:9090
+      - EUREKA_SERVER=http://10.39.1.85:9091/eureka
+      - EUREKA_HOST=10.39.1.85
+      - RABBITMQ_HOST=10.39.1.85
+      - DB_ORDER_QUERY_HOST=10.39.1.130      
     networks:
       - ntw_backend
 networks:
